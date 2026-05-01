@@ -41,6 +41,9 @@ def set_visual_style():
 st.set_page_config(page_title="MindfulJournal", page_icon="🧘")
 set_visual_style()
 
+if "current_mood" not in st.session_state:
+    st.session_state.current_mood = "Neutral"
+
 st.sidebar.title("🌿 My Wellness Space")
 user_name = st.sidebar.text_input("What is your name?", value="Mina")
 
@@ -82,7 +85,9 @@ if st.button("Analyze My Mood"):
     if user_entry:
         with st.spinner('Reflecting...'):
             mood = get_azure_sentiment(user_entry)
-        
+            # SAVE TO MEMORY HERE
+            st.session_state.current_mood = mood 
+                
         with open("mood_history.csv", "a", encoding="utf-8") as f:
             f.write(f"{datetime.now()},{mood}\n")
 
@@ -103,13 +108,33 @@ if st.button("Analyze My Mood"):
 # --- 7. PERSONAL GROWTH SUMMARY ---
 st.divider()
 st.header("✨ Your Personal Growth Summary")
+
+# Logic to choose display based on memory
+if st.session_state.current_mood == "positive":
+    display_mood = "Positive ✨"
+    mood_delta = "+20%"
+    delta_clr = "normal"
+elif st.session_state.current_mood == "negative":
+    display_mood = "Stressed 😰"
+    mood_delta = "-10%"
+    delta_clr = "inverse"
+else:
+    display_mood = "Neutral ⚖️"
+    mood_delta = "0%"
+    delta_clr = "off"
+
 col1, col2, col3 = st.columns(3)
 with col1:
     st.metric(label="Journaling Streak", value="3 Days", delta="1")
 with col2:
-    st.metric(label="Primary Mood", value="Stressed", delta="-10%", delta_color="inverse")
+    st.metric(label="Primary Mood", value=display_mood, delta=mood_delta, delta_color=delta_clr)
 with col3:
     st.metric(label="Missions Completed", value=f"{completed_habits}/3")
 
-st.info(f"🌟 **Motivation Agent Note:** Your stress levels are trending down, {user_name}!")
+# Update the note based on the mood too!
+if 'mood' in locals() and mood == "positive":
+    st.info(f"🌟 **Motivation Agent Note:** You're on fire today, {user_name}! Your energy is infectious.")
+else:
+    st.info(f"🌟 **Motivation Agent Note:** Your stress levels are trending down, {user_name}!")
+
 st.caption("🔒 Privacy Note: Data stored locally and secured by Azure AI.")
