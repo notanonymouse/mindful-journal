@@ -20,9 +20,17 @@ def get_azure_sentiment(text):
 
 # --- 2. THE APP INTERFACE (Streamlit) ---
 st.set_page_config(page_title="MindfulJournal", page_icon="🧘")
+# (Keep your existing set_page_config line)
 
+# ADD THIS LINE RIGHT HERE:
+set_visual_style() # <-- This turns on the background and colors we just defined
+# # Sidebar for the 'Supportive Friend' vibe
+st.sidebar.title("🌿 My Wellness Space")
+
+# This adds the box where you can change "Mina" to any name!
+user_name = st.sidebar.text_input("What is your name?", value="Mina")
 st.title("🧘 My Mindful Journal")
-st.write("How are you feeling today, Mina?")
+st.write(f"How are you feeling today, {user_name}?")
 
 affirmations = [
     "You are doing enough, even on the days you don't feel like it. ✨",
@@ -43,7 +51,8 @@ if st.button("Analyze My Mood"):
             mood = get_azure_sentiment(user_entry)
         
         st.divider()
-        st.subheader("Assistant Analysis")
+        # --- MULTI-AGENT BRANDING ---
+        st.subheader("🧠 Reflection Agent Insights") 
         
         if mood == "negative":
             st.warning("Azure AI Detected: You seem to be having a hard time 😰")
